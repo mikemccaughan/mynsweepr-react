@@ -23,11 +23,11 @@ export class TypedStorage<T> implements ITypedStorage<T> {
     return this._keys.has(key);
   }
   newKey(): string {
-    let lastKey =
+    const lastKey =
       this._keys.size === 0
         ? "key0000000000000000"
         : Array.from(this.keys.values()).pop()!;
-    let lastInt = parseInt(lastKey.substring(3));
+    const lastInt = parseInt(lastKey.substring(3));
     return `key${`0000000000000000${lastInt + 1}`.slice(-16)}`;
   }
   save(key: string | null, item: T): string {

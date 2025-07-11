@@ -43,7 +43,7 @@ const mapDispatchToProps = (dispatch: any) => {
   } as Partial<DifficultySelectorProps>;
 };
 
-export default connect<{}, {}, DifficultySelectorProps>(
+export default connect<unknown, unknown, DifficultySelectorProps>(
   mapStateToProps,
   mapDispatchToProps
 )(DifficultySelector);

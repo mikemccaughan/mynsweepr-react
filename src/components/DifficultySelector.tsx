@@ -126,7 +126,7 @@ const DifficultySelector: React.FunctionComponent<DifficultySelectorProps> = ({
       >
         Load Board
       </button>
-      <dialog style={{ display: (boards?.length ?? 0) ? "flex" : "none" }}>
+      <dialog className={(boards?.length ?? 0) ? "flex" : "none" }>
         <ul>
           {boards?.map((b: { key: string }) => (
               <li key={b.key}>

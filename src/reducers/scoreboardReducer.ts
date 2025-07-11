@@ -16,8 +16,8 @@ export function scoreboardReducer(state = initialState, action: any) {
   if (action.type !== TIME_CHANGE) {
     console.log("scoreboardReducer", state, action);
   }
-  const scoreboardFromState = state.hasOwnProperty("time");
-  let scoreboard = scoreboardFromState ? state : state.scoreboard;
+  const scoreboardFromState = Object.hasOwn(state, "time");
+  const scoreboard = scoreboardFromState ? state : state.scoreboard;
   switch (action.type) {
     case REMAINING_CHANGE:
       return scoreboardFromState

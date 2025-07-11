@@ -28,13 +28,13 @@ const MineCell: React.FunctionComponent<MineCellProps> = ({
   handleCellRightClicked
 }) => {
   value = value || 0;
-  let nearby = value >= 0 ? value : 0;
-  let nearbyClassName = `nearby-${nearby}`;
-  let isHidden = hidden;
-  let hasFlag = flag;
-  let hasMine = !isHidden && !hasFlag && value < 0;
-  let hasNearby = !isHidden && !hasFlag && !hasMine && nearby !== 0;
-  let cell = {
+  const nearby = value >= 0 ? value : 0;
+  const nearbyClassName = `nearby-${nearby}`;
+  const isHidden = hidden;
+  const hasFlag = flag;
+  const hasMine = !isHidden && !hasFlag && value < 0;
+  const hasNearby = !isHidden && !hasFlag && !hasMine && nearby !== 0;
+  const cell = {
     value,
     hidden,
     flag,
@@ -42,6 +42,7 @@ const MineCell: React.FunctionComponent<MineCellProps> = ({
   };
   return (
     <button
+      type="button"
       data-cell={JSON.stringify(cell)}
       className={
         "cell" +

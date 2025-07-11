@@ -30,9 +30,8 @@ const MineBoard: React.FunctionComponent<MineBoardProps> = ({
     <div
       data-width={mineBoard?.width}
       className={
-        "board" + (endGame?.status ? ` ${endGame.status}` : "")
+        "board board" + (endGame?.status ? ` ${endGame.status}` : "")
       }
-      style={{ width: `${+(mineBoard?.width ?? 9) * 42}px` }}
     >
       <div className="dialog won">
         <div className="dialog-content">

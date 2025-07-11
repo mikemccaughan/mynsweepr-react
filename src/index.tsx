@@ -11,13 +11,12 @@ import {
   endGameReducer,
   scoreboardReducer
 } from "./reducers";
-import { Board } from "./utils/board";
+import { Board, IBoardState } from "./utils/board";
 import thunk from "redux-thunk";
 
-const preloadedState: any = {
+const preloadedState: IBoardState = {
   scoreboard: {
     time: "00:00",
-    timer: 0,
     timeRunning: false,
     remaining: 0
   },

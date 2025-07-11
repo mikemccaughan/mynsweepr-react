@@ -1,4 +1,4 @@
-import { Temporal } from './temporal';
+import { Temporal } from './temporal.d';
 
 export interface IMineCell {
   value?: number;
@@ -16,6 +16,43 @@ export interface IBoard {
   height: number;
   cells: IMineCell[];
 }
+export interface IAction {
+  cell?: IMineCell;
+  cells?: IMineCell[];
+  type?: string;
+  status?: string;
+  timerId?: number;
+  time?: number | string;
+  remaining?: number;
+  key?: { key: string };
+  mineBoard?: IBoard;
+  difficulty?: string;
+  width?: number;
+  height?: number;
+}
+
+export interface IBoardState {
+  mineBoard: {
+    difficulty: string;
+    width: number;
+    height: number;
+    cells: IMineCell[];
+  },
+  difficultySelector: {
+    difficulty: string;
+    width: number;
+    height: number;
+  },
+  scoreboard: {
+    time: string;
+    timeRunning: boolean;
+    remaining: number;
+  },
+  endGame: {
+    status: string;
+  },
+  cell?: IMineCell
+}
 export class Board implements IBoard {
   difficulty: string;
   width: number;
@@ -30,7 +67,7 @@ export class Board implements IBoard {
     height?: string | number
   ) {
     let board: IBoard = { difficulty: "9", width: 9, height: 9, cells: [] };
-    if (boardOrWidth?.hasOwnProperty("width")) {
+    if (Utils.isGood(boardOrWidth) && typeof boardOrWidth === 'object' && Object.hasOwn(boardOrWidth, "width")) {
       board = boardOrWidth as IBoard;
     }
     if (boardOrWidth != null && typeof height !== "undefined") {
@@ -78,7 +115,7 @@ export class Board implements IBoard {
   ): IMineCell {
     hidden = typeof hidden === "boolean" ? hidden : true;
     flag = typeof flag === "boolean" ? flag : false;
-    let key = `${x}.${y}.${value}`;
+    const key = `${x}.${y}.${value}`;
     return {
       key: key,
       value: value,
@@ -104,21 +141,21 @@ export class Board implements IBoard {
 
   }
   private populatePreboard(): void {
-    let cellCount = this.width * this.height;
-    let mineCount = Math.floor(cellCount / 6);
-    let value = -(mineCount * 2);
-    let isBetween = function (value: number, min: number, max: number): boolean {
+    const cellCount = this.width * this.height;
+    const mineCount = Math.floor(cellCount / 6);
+    const value = -(mineCount * 2);
+    const isBetween = function (value: number, min: number, max: number): boolean {
       return value >= min && value <= max;
     };
     for (let i = 0; i < mineCount; i++) {
       let x: number, y: number;
-      while (true) {
+      do {
         x = Math.floor(Math.random() * this.width);
         y = Math.floor(Math.random() * this.height);
         if (0 <= this.preboard[y][x]) {
           break;
         }
-      }
+      } while (i >= 0);
       for (let m = -1; m < 2; m++) {
         for (let n = -1; n < 2; n++) {
           if (n === 0 && m === 0) {
@@ -156,12 +193,12 @@ export class Board implements IBoard {
     this.sortCells();
   }
   public static getRemaining(cells: IMineCell[]): number {
-    let mines = cells.filter(cell => (cell.value || 0) < 0 && !cell.flag);
+    const mines = cells.filter(cell => (cell.value || 0) < 0 && !cell.flag);
     return mines.length;
   }
 }
 export class Utils {
-  static areEqual(a: any, b: any, deep: boolean): boolean {
+  static areEqual(a: unknown, b: unknown, deep: boolean): boolean {
     if (Object.is(a, b)) {
       return true;
     }
@@ -172,7 +209,7 @@ export class Utils {
       case 'object':
         if (a instanceof Date && b instanceof Date) {
           return a.valueOf() === b.valueOf();
-        } else if (Temporal && (
+        } else if (Utils.isGood(Temporal) && (
           a instanceof Temporal.PlainDateTime ||
           a instanceof Temporal.ZonedDateTime ||
           a instanceof Temporal.Instant ||
@@ -214,7 +251,7 @@ export class Utils {
         } else if (a instanceof RegExp && b instanceof RegExp) {
           // There are edge cases where this would not work
           return a.toString() === b.toString(); 
-        } else if (a !== null && b !== null) {
+        } else if (a != null && b != null) {
           const entriesA = Object.entries(a);
           const entriesB = Object.entries(b);
           // if a primitive is wrapped in an object (e.g. Object(1)), Object.entries(obj) returns [].
@@ -232,11 +269,57 @@ export class Utils {
       case 'bigint':
         // bigint support in Object.is is unknown
         return a === b;
-        case 'symbol':
+      case 'symbol':
+        if (typeof b === 'symbol') {
           // Symbols are like objects; they use reference equality, but they only have
           // one property.
           return a.description === b.description;
+        }
+      return false;
     }
-    return false;
+    return a === b;
+  }
+  static isGood(value: unknown, min?: number, max?: number): value is string | number | bigint | boolean | object {
+    if (typeof value === 'number') {
+      if (typeof min === 'number' && typeof max === 'number') {
+        return value >= min && value <= max;
+      } else if (typeof min === 'number') {
+        return value >= min;
+      } else if (typeof max === 'number') {
+        return value <= max;
+      }
+      return true;
+    }
+    else if (typeof value === 'bigint') {
+      if (typeof min === 'bigint' && typeof max === 'bigint') {
+        return value >= min && value <= max;
+      } else if (typeof min === 'bigint') {
+        return value >= min;
+      } else if (typeof max === 'bigint') {
+        return value <= max;
+      }
+      return true;
+    }
+    else if (typeof value === 'string') {
+      const len = value.trim().length;
+      if (len <= 0) {
+        return false;
+      }
+      if (typeof min === 'number' && typeof max === 'number') {
+        return len >= min && len <= max;
+      } else if (typeof min === 'number') {
+        return len >= min;
+      } else if (typeof max === 'number') {
+        return len <= max;
+      }
+    }
+      
+    return typeof value !== 'undefined' && value !== null;
+  }
+  static isOfType(value: unknown, type: string): boolean {
+    if (typeof value === 'object' && value !== null) {
+      return value.constructor.name.toLowerCase() === type.toLowerCase();
+    }
+    return typeof value === type;
   }
 }

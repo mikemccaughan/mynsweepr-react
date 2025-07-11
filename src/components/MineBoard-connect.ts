@@ -47,7 +47,7 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect<{}, {}, MineBoardProps>(
+export default connect<unknown, unknown, MineBoardProps>(
   mapStateToProps,
   mapDispatchToProps
 )(MineBoard);

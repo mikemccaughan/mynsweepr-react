@@ -1456,9 +1456,46 @@ export namespace Temporal {
         timeZone: () => Temporal.TimeZone;
 
         readonly [Symbol.toStringTag]: 'Temporal.Now';
+    } = {
+        instant: () => new Temporal.Instant(Date.now() * 1_000_000),
+        zonedDateTime: (calendar, tzLike) => {
+            const timeZone = Temporal.TimeZone.from(tzLike);
+            const instant = Temporal.Now.instant();
+            return Temporal.ZonedDateTime.from({
+                epochNanoseconds: instant.epochNanoseconds,
+                timeZone,
+                calendar
+            });
+        },
+        zonedDateTimeISO: (tzLike) => Temporal.Now.zonedDateTime('iso8601', tzLike),
+        plainDateTime: (calendar, tzLike) => {
+            const timeZone = Temporal.TimeZone.from(tzLike);
+            const instant = Temporal.Now.instant();
+            return Temporal.PlainDateTime.from({
+                ...instant.getISOFields(),
+                calendar,
+                timeZone
+            });
+        },
+        plainDateTimeISO: (tzLike) => Temporal.Now.plainDateTime('iso8601', tzLike),
+        plainDate: (calendar, tzLike) => {
+            const timeZone = Temporal.TimeZone.from(tzLike);
+            const instant = Temporal.Now.instant();
+            return Temporal.PlainDate.from({
+                ...instant.getISOFields(),
+                calendar,
+                timeZone
+            });
+        },
+        plainDateISO: (tzLike) => Temporal.Now.plainDate('iso8601', tzLike),
+        plainTimeISO: (tzLike) => Temporal.Now.plainTime('iso8601', tzLike),
+        timeZone: () => {
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            return new Temporal.TimeZone(timeZone);
+        },
+        [Symbol.toStringTag]: 'Temporal.Now'
     };
 }
-
 declare namespace Intl {
     type Formattable =
         | Date

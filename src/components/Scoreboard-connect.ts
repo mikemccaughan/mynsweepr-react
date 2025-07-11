@@ -8,7 +8,7 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = () => {
   return {};
 };
-export default connect<{}, {}, ScoreboardProps>(
+export default connect<unknown, unknown, ScoreboardProps>(
   mapStateToProps,
   mapDispatchToProps
 )(Scoreboard);

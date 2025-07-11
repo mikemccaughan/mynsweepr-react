@@ -226,6 +226,16 @@ dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
+.board[data-width='9'] {
+  width: calc(9 * var(--size-mine) + 8px);
+}
+.board[data-width='16'] {
+  width: calc(16 * var(--size-mine) + 15px);
+}
+.board[data-width='30'] {
+  width: calc(30 * var(--size-mine) + 29px);
+}
+
 .board .dialog {
   display: flex;
   flex: 1 1 auto;

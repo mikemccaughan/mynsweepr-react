@@ -46,8 +46,8 @@ console.log = (...args: any[]) => {
 
 export interface BoardDifficulty {
   difficulty: string;
-  width: number | string;
-  height: number | string;
+  width: number;
+  height: number;
 }
 
 export function getDifficultyWidthHeight({
@@ -69,7 +69,7 @@ export function buildBoardState(
   state: any,
   action: any
 ): { boardFromState: boolean; newState: any } {
-  let board = action.mineBoard ?? state.mineBoard ?? state;
+  const board = action.mineBoard ?? state.mineBoard ?? state;
   const boardFromState = !action.mineBoard && !state.mineBoard;
   const { difficulty, width, height } = getDifficultyWidthHeight({
     difficulty: action?.difficulty ?? board?.difficulty,

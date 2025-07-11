@@ -21,7 +21,7 @@ const initialState: any = {
   }
 };
 
-let store = new TypedStorage<IBoard>();
+const store = new TypedStorage<IBoard>();
 
 export function difficultySelectorReducer(state = initialState, action: any) {
   if (action.type !== TIME_CHANGE) {
@@ -31,7 +31,8 @@ export function difficultySelectorReducer(state = initialState, action: any) {
       action
     );
   }
-  let { boardFromState, newState } = buildBoardState(state, action);
+  const { boardFromState, newState } = buildBoardState(state, action);
+  let board: { newState: Record<string, unknown>; boardFromState: boolean };
   switch (action.type) {
     case DIFFICULTY_CHANGE:
     case DIFFICULTY_WIDTH_CHANGE:
@@ -54,7 +55,7 @@ export function difficultySelectorReducer(state = initialState, action: any) {
       return newState;
     case BOARD_CLICKED:
       action.mineBoard = store.get(action.key.key) as IBoard;
-      let board = buildBoardState(state, action);
+      board = buildBoardState(state, action);
       board.newState.boards = null;
       return { ...state, ...board.newState };
     default:

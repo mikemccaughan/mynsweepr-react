@@ -51,7 +51,8 @@ export interface IBoardState {
   endGame: {
     status: string;
   },
-  cell?: IMineCell
+  cell?: IMineCell;
+  cells?: IMineCell[];
 }
 export class Board implements IBoard {
   difficulty: string;

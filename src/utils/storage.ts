@@ -26,7 +26,7 @@ export class TypedStorage<T> implements ITypedStorage<T> {
     const lastKey =
       this._keys.size === 0
         ? "key0000000000000000"
-        : Array.from(this.keys.values()).pop()!;
+        : Array.from(this.keys.values()).pop() ?? "key0000000000000000";
     const lastInt = parseInt(lastKey.substring(3));
     return `key${`0000000000000000${lastInt + 1}`.slice(-16)}`;
   }
@@ -44,6 +44,6 @@ export class TypedStorage<T> implements ITypedStorage<T> {
     if (!this.hasKey(key)) {
       return null;
     }
-    return JSON.parse(this.s.getItem(key)!);
+    return JSON.parse(this.s.getItem(key) ?? "{}");
   }
 }

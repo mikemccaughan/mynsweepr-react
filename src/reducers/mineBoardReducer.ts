@@ -7,9 +7,9 @@ import {
   BOARD_CLICKED
 } from "../actions/types";
 import { Board, IAction, IBoardState, IMineCell } from "../utils/board";
-import { getDifficultyWidthHeight, buildBoardState, BoardDifficulty } from ".";
+import { getBoardDifficulty, buildBoardState, BoardDifficulty } from ".";
 
-const initialState: IBoardState = {
+const initialState: IBoardState & Record<string, unknown> = {
   mineBoard: {
     difficulty: "9",
     width: 9,
@@ -147,7 +147,7 @@ function cellCanShow(cellToShow: IMineCell, cellTested: IMineCell, state: IBoard
 }
 
 function handleEmptyClick(
-  newState: any,
+  newState: IBoardState,
   newCells: IMineCell[],
   cell: IMineCell,
   clickedCell: IMineCell
@@ -262,18 +262,18 @@ function handleCellClick(
 }
 
 function handleCellRightClick(
-  state: any,
-  action: any,
+  state: IBoardState,
+  action: IAction,
   { difficulty, height, width }: BoardDifficulty
 ) {
   const newCells = [
     ...(action.cells ?? state?.mineBoard?.cells ?? [])
   ].map(cel =>
-    cel.index === action.cell.index && cel.hidden
+    cel.index === action.cell?.index && cel.hidden
       ? { ...cel, flag: !cel.flag }
       : { ...cel }
   );
-  const newState: any = {
+  const newState: IBoardState = {
     ...state,
     mineBoard: {
       ...state.mineBoard,
@@ -306,15 +306,18 @@ function handleCellRightClick(
 }
 
 function handleCellDoubleClick(
-  state: any,
-  action: any,
+  state: IBoardState,
+  action: IAction,
   { difficulty, height, width }: BoardDifficulty
 ) {
   let newCells = [
     ...(action.cells ?? state?.mineBoard?.cells ?? [])
   ];
-  const cell = newCells.find(cel => cel.index === action.cell.index);
-  const newState: any = {
+  const cell = newCells.find(cel => cel.index === action.cell?.index);
+  if (!cell) {
+    return state;
+  }
+  const newState: IBoardState = {
     ...state,
     mineBoard: {
       ...state.mineBoard,
@@ -333,16 +336,16 @@ function handleCellDoubleClick(
     },
     cell: action.cell
   };
-  if (cell.hidden || cell.flag || cell.value <= 0) {
+  if (cell.hidden || cell.flag || (cell.value ?? 0) <= 0) {
     return newState;
   }
   let lost = false;
   let empty: IMineCell | null = null;
   newCells = newCells.map(cel => {
     if (cellCanShow(cel, cell, newState) && !cel.flag) {
-      if (cel.value < 0) {
+      if ((cel.value ?? 0) < 0) {
         lost = true;
-      } else if (cel.value === 0) {
+      } else if ((cel.value ?? 0) === 0) {
         empty = cel;
       }
       return { ...cel, hidden: false };
@@ -365,7 +368,7 @@ function handleCellDoubleClick(
   return newState;
 }
 
-function hasWon(state: any) {
+function hasWon(state: IBoardState) {
   return (
     state.scoreboard.remaining === 0 &&
     !state.mineBoard.cells.some((cel: IMineCell) => cel.hidden && !cel.flag)
@@ -374,9 +377,9 @@ function hasWon(state: any) {
 
 function logState(
   initialMessage: string,
-  wholeState: any,
-  processedState: any,
-  action: any
+  wholeState: IBoardState,
+  processedState: IBoardState,
+  action: IAction
 ) {
   console.table([
     {
@@ -387,7 +390,7 @@ function logState(
       message: "original state of cell:",
       data: JSON.stringify(
         wholeState.mineBoard.cells.find(
-          (cell: IMineCell) => cell.index === action.cell.index
+          (cell: IMineCell) => cell.index === action.cell?.index
         )
       )
     },
@@ -395,7 +398,7 @@ function logState(
       message: "whole state:",
       data: JSON.stringify(
         wholeState.mineBoard.cells.find(
-          (cell: IMineCell) => cell.index === action.cell.index
+          (cell: IMineCell) => cell.index === action.cell?.index
         )
       )
     },
@@ -403,7 +406,7 @@ function logState(
       message: "post processing:",
       data: JSON.stringify(
         processedState.mineBoard.cells.find(
-          (cell: IMineCell) => cell.index === action.cell.index
+          (cell: IMineCell) => cell.index === action.cell?.index
         )
       )
     },
@@ -414,12 +417,12 @@ function logState(
   ]);
 }
 
-export function mineBoardReducer(state = initialState, action: any) {
+export function mineBoardReducer(state = initialState, action: IAction) {
   if (action.type !== TIME_CHANGE) {
     console.log("mineBoardReducer", state, action);
   }
   const { boardFromState, newState } = buildBoardState(state, action);
-  const { difficulty, height, width } = getDifficultyWidthHeight(
+  const { difficulty, height, width } = getBoardDifficulty(
     boardFromState ? newState : newState.mineBoard
   );
   const wholeState = boardFromState ? { mineBoard: { ...newState } } : newState;
